@@ -144,18 +144,21 @@ class GameService extends ChangeNotifier {
   void _spawnObjects(int elapsed) {
     // Spawn enemy cars
     if (DateTime.now().millisecondsSinceEpoch % 2000 < elapsed) {
-      final lane = (DateTime.now().millisecondsSinceEpoch % 3) / 2; // 0, 0.5 or 1
+      final lanes = [0.2, 0.5, 0.8]; // 3 voies fixes
+      final lane = lanes[DateTime.now().millisecondsSinceEpoch % 3];
       _enemyCars.add(EnemyCar(
         x: lane,
         y: -0.1,
         carType: EnemyCar.getRandomType(),
         spawnTime: DateTime.now().millisecondsSinceEpoch,
+        color: EnemyCar.getColorForType(EnemyCar.getRandomType()),
       ));
     }
 
-    // Spawn power-ups
-    if (DateTime.now().millisecondsSinceEpoch % 5000 < elapsed) {
-      final lane = (DateTime.now().millisecondsSinceEpoch % 3) / 2;
+    // Spawn power-ups (moins fréquent)
+    if (DateTime.now().millisecondsSinceEpoch % 8000 < elapsed) {
+      final lanes = [0.2, 0.5, 0.8];
+      final lane = lanes[DateTime.now().millisecondsSinceEpoch % 3];
       _powerUps.add(PowerUp(
         x: lane,
         y: -0.1,
@@ -166,16 +169,17 @@ class GameService extends ChangeNotifier {
   }
 
   void _updateObjects(int elapsed) {
-    // Update enemy cars
-    final speed = _state.gameSpeed * _state.difficultyMultiplier * (elapsed / 16);
-    for (var car in _enemyCars) {
-      car = car.copyWith(y: car.y + 0.01 * speed);
+    final speed = _state.gameSpeed * _state.difficultyMultiplier * (elapsed / 1000.0);
+
+    // Update enemy cars - CORRECTION: Modifier les objets dans la liste
+    for (int i = 0; i < _enemyCars.length; i++) {
+      _enemyCars[i] = _enemyCars[i].copyWith(y: _enemyCars[i].y + 0.3 * speed);
     }
     _enemyCars.removeWhere((car) => car.y > 1.2);
 
-    // Update power-ups
-    for (var powerUp in _powerUps) {
-      powerUp = powerUp.copyWith(y: powerUp.y + 0.005 * speed);
+    // Update power-ups - CORRECTION: Modifier les objets dans la liste
+    for (int i = 0; i < _powerUps.length; i++) {
+      _powerUps[i] = _powerUps[i].copyWith(y: _powerUps[i].y + 0.2 * speed);
     }
     _powerUps.removeWhere((powerUp) => powerUp.y > 1.2);
   }
@@ -184,20 +188,20 @@ class GameService extends ChangeNotifier {
     final playerCar = Car(x: _playerX, y: _playerY);
 
     // Check power-up collisions
-    for (var powerUp in _powerUps) {
-      if (powerUp.collidesWith(playerCar)) {
-        _applyPowerUp(powerUp);
-        _powerUps.remove(powerUp);
+    for (int i = _powerUps.length - 1; i >= 0; i--) {
+      if (_powerUps[i].collidesWith(playerCar)) {
+        _applyPowerUp(_powerUps[i]);
+        _powerUps.removeAt(i);
         break;
       }
     }
 
     // Check enemy car collisions
     if (!_state.isInvincible) {
-      for (var enemy in _enemyCars) {
-        if (enemy.collidesWith(playerCar)) {
+      for (int i = _enemyCars.length - 1; i >= 0; i--) {
+        if (_enemyCars[i].collidesWith(playerCar)) {
           _handleCollision();
-          _enemyCars.remove(enemy);
+          _enemyCars.removeAt(i);
           break;
         }
       }
@@ -213,6 +217,7 @@ class GameService extends ChangeNotifier {
           isInvincible: true,
           powerUpEndTime: DateTime.now().millisecondsSinceEpoch + 5000,
         );
+        _powerUpTimer?.cancel();
         _powerUpTimer = Timer(const Duration(seconds: 5), () {
           _state = _state.copyWith(isInvincible: false);
           notifyListeners();
@@ -224,6 +229,7 @@ class GameService extends ChangeNotifier {
           gameSpeed: _state.gameSpeed * 0.5,
           powerUpEndTime: DateTime.now().millisecondsSinceEpoch + 3000,
         );
+        _powerUpTimer?.cancel();
         _powerUpTimer = Timer(const Duration(seconds: 3), () {
           _state = _state.copyWith(
             isSlowMotion: false,
@@ -268,7 +274,7 @@ class GameService extends ChangeNotifier {
   // Player controls
   void moveLeft() {
     if (_state.isPlaying) {
-      _playerX = (_playerX - 0.1).clamp(0.0, 1.0);
+      _playerX = (_playerX - 0.05).clamp(0.1, 0.9);
       _checkDodge();
       notifyListeners();
     }
@@ -276,7 +282,7 @@ class GameService extends ChangeNotifier {
 
   void moveRight() {
     if (_state.isPlaying) {
-      _playerX = (_playerX + 0.1).clamp(0.0, 1.0);
+      _playerX = (_playerX + 0.05).clamp(0.1, 0.9);
       _checkDodge();
       notifyListeners();
     }
