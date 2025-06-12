@@ -60,7 +60,7 @@ class HudWidget extends StatelessWidget {
 
   Widget _buildInfoContainer(String text, BuildContext context, {Color color = Colors.grey}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.3),
         borderRadius: BorderRadius.circular(GameConstants.borderRadius),
@@ -69,7 +69,7 @@ class HudWidget extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 18,
+          fontSize: 8,
           color: GameConstants.textColor,
           fontWeight: FontWeight.bold,
         ),
