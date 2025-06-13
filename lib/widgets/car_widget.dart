@@ -7,6 +7,7 @@ class CarWidget extends StatelessWidget {
   final double width;
   final double height;
   final bool isPlayer;
+  final String? customImagePath; // Nouveau paramètre pour l'image personnalisée
 
   const CarWidget({
     super.key,
@@ -14,13 +15,57 @@ class CarWidget extends StatelessWidget {
     this.width = GameConstants.carWidth,
     this.height = GameConstants.carHeight,
     this.isPlayer = true,
+    this.customImagePath,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Déterminer le chemin de l'image à utiliser
+    String imagePath = customImagePath ?? _getDefaultImagePath();
+
     return Container(
       width: width.toScreenWidth(context),
       height: height.toScreenHeight(context),
+      child: Stack(
+        children: [
+          // Image principale de la voiture
+          Container(
+
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                imagePath,
+                width: width.toScreenWidth(context),
+                height: height.toScreenHeight(context),
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) {
+                  // Widget de fallback si l'image ne charge pas
+                  return _buildFallbackCar();
+                },
+              ),
+            ),
+          ),
+
+
+
+        ],
+      ),
+    );
+  }
+
+  String _getDefaultImagePath() {
+    if (isPlayer) {
+      return 'assets/images/cars/player_car.png';
+    } else {
+      return 'assets/images/cars/enemy_car.png';
+    }
+  }
+
+  Widget _buildFallbackCar() {
+    // Widget de secours en cas d'erreur de chargement d'image
+    return Container(
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         gradient: LinearGradient(
@@ -40,118 +85,7 @@ class CarWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Carrosserie principale
-          Container(
-            margin: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              color: color,
-              border: Border.all(color: Colors.black26, width: 1),
-            ),
-          ),
-          // Pare-brise
-          Positioned(
-            top: 4,
-            left: 4,
-            right: 4,
-            height: 12,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
-                ),
-                color: Colors.lightBlue.withOpacity(0.3),
-                border: Border.all(color: Colors.black54, width: 0.5),
-              ),
-            ),
-          ),
-          // Pare-brise arrière
-          Positioned(
-            bottom: 4,
-            left: 4,
-            right: 4,
-            height: 8,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(4),
-                  bottomRight: Radius.circular(4),
-                ),
-                color: Colors.lightBlue.withOpacity(0.2),
-                border: Border.all(color: Colors.black54, width: 0.5),
-              ),
-            ),
-          ),
-          // Phares avant (pour la voiture du joueur)
-          if (isPlayer) ...[
-            Positioned(
-              top: 2,
-              left: 2,
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Colors.yellow,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              top: 2,
-              right: 2,
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Colors.yellow,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-          // Feux arrière (pour les voitures ennemies)
-          if (!isPlayer) ...[
-            Positioned(
-              bottom: 2,
-              left: 2,
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 2,
-              right: 2,
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-          // Bande décorative
-          Center(
-            child: Container(
-              width: width.toScreenWidth(context) * 0.8,
-              height: 2,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(1),
-              ),
-            ),
-          ),
-        ],
-      ),
+
     );
   }
 }

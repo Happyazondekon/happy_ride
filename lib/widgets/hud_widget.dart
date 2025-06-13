@@ -31,26 +31,6 @@ class HudWidget extends StatelessWidget {
                 'Level: ${state.level}',
                 context,
               ),
-              if (state.hasCombo)
-                _buildInfoContainer(
-                  'Combo: ${state.combo}',
-                  context,
-                  color: Colors.orange,
-                ),
-              IconButton(
-                icon: Icon(
-                  state.isPaused ? Icons.play_arrow : Icons.pause,
-                  color: GameConstants.textColor,
-                  size: 30,
-                ),
-                onPressed: () {
-                  if (state.isPlaying) {
-                    gameService.pauseGame();
-                  } else if (state.isPaused) {
-                    gameService.resumeGame();
-                  }
-                },
-              ),
             ],
           );
         },
@@ -69,7 +49,7 @@ class HudWidget extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          fontSize: 8,
+          fontSize: 16,
           color: GameConstants.textColor,
           fontWeight: FontWeight.bold,
         ),

@@ -153,16 +153,11 @@ class GameScreen extends StatelessWidget {
                   // HUD redesigné
                   const HudWidget(),
 
-                  // Indicateurs de performance
-                  _buildPerformanceIndicators(gameService),
 
                   // Écran de pause redesigné
                   if (gameService.state.isPaused)
                     _buildPauseOverlay(context, gameService),
 
-                  // Notification de combo
-                  if (gameService.state.hasCombo)
-                    _buildComboNotification(gameService.state.combo),
                 ],
               ),
             );
@@ -265,86 +260,6 @@ class GameScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPerformanceIndicators(GameService gameService) {
-    return Positioned(
-      right: 16,
-      top: 100,
-      child: Column(
-        children: [
-          if (gameService.state.dodgeStreak > 3)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.orange, width: 2),
-              ),
-              child: Text(
-                'Streak: ${gameService.state.dodgeStreak}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          const SizedBox(height: 8),
-          Container(
-            width: 60,
-            height: 8,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: (gameService.state.score % GameConstants.scorePerLevel) /
-                  GameConstants.scorePerLevel,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: GameConstants.primaryColor,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildComboNotification(int combo) {
-    return Positioned(
-      top: 150,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.orange.withOpacity(0.5),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Text(
-            'COMBO x$combo',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildPauseOverlay(BuildContext context, GameService gameService) {
     return Positioned.fill(
